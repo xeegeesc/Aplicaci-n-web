@@ -4,42 +4,53 @@
     <meta charset="UTF-8">
     <title>Tabla Ventas</title>
     <script src="Datos/ventas.js"></script>
+    <script src="datos/vendedores.js"></script>
     <style>
-        table{
-            margin:0 auto;
+        table {
+            margin: 0 auto;
             border-collapse: collapse;
             font-family: sans-serif;
         }
-        th{
+
+        th {
             border-bottom: solid 2px black;
         }
-        td{
+
+        td {
             border-bottom: solid 1px black;
             padding: 2em 3em;
         }
-        tbody tr:nth-child(even){
+
+        tbody tr:nth-child(even) {
             background-color: #eee;
+        }
+        body{
+            font-family: sans-serif;
         }
     </style>
 </head>
 <body>
+<div id="filtros">
+    <label>Vendedores:
+        <select id="selector-vendedores"></select>
+    </label>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Vendedor</th>
+        <th>Cliente</th>
+        <th>Fecha</th>
+        <th>Importe</th>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Vendedor</th>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Importe</th>
-
-        </tr>
-        </thead>
-        <tbody id="tablaVentas">
-        <tr>
-            <td colspan="4" style="text-align: center">No hay ventas</td>
-        </tr>
-        </tbody>
-    </table>
+    </tr>
+    </thead>
+    <tbody id="tablaVentas">
+    <tr>
+        <td colspan="4" style="text-align: center">No hay ventas</td>
+    </tr>
+    </tbody>
+</table>
 
 <script>
     var listaDeVentas = JSON.parse(ventas)
@@ -48,6 +59,7 @@
         let venta = listaDeVentas[i];
         contenedor.appendChild(crearFilaVenta(venta));
     }
+
     function crearFilaVenta(venta) {
         let fila = document.createElement('tr');
         let celdaVendedor = document.createElement('td');
@@ -61,6 +73,7 @@
         fila.append(celdaVendedor, celdaCliente, celdaFecha, celdaImporte);
         return fila;
     }
+
     function rellenarTablaVentas(datos) {
         contenedor.innerHTML = "";
         if (datos.length > 0) {
@@ -72,7 +85,41 @@
             contenedor.innerHTML = '<tr><td colspan="4" style="text-align: center">No hay ventas</td></tr>';
         }
     }
+
     rellenarTablaVentas(listaDeVentas);
+
+    var selectorVendedores = {
+        iniciar:function (idSelector,datos){
+            this.selector=document.getElementById(idSelector);
+            this.datos=datos;
+            this.crearOpcion(0,"Todos");
+            for (let i = 0; i < datos.length; i++) {
+                this.crearOpcion(this.datos[i].id,this.datos[i].nombre + " "+ this.datos[i].apellidos)
+            }<!--for-->
+        }, <!--function()-->
+
+        crearOpcion:function(value, label){
+            let opt=document.createElement('option')
+            opt.value = value;
+            opt.textContent = label;
+            this.selector.appendChild(opt)
+        } <!--function()-->
+    } <!--selector_vendedores-->
+
+    selectorVendedores.iniciar("selector-vendedores", JSON.parse(vendedores))
+
+    selectorVendedores.selector.onchange = function (){
+    let id = this.value;
+    let datos = listaDeVentas;
+
+    if(id != 0){
+        datos = listaDeVentas.filter(function(venta){
+            return (venta.vendedor.id==id);
+        }<!--function(Venta)-->
+        );
+    }<!--if-->
+        rellenarTablaVentas(datos)
+    }<!--function()-->
 </script>
 </body>
 </html>
